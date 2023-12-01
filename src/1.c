@@ -270,7 +270,7 @@ void drawPlot(int data[], int n, unsigned int shaderProgram)
 
 int main()
 {
-    int n_balls = 1000;
+    int n_balls = 3000;
 
     float velocity[n_balls][2];
 
@@ -463,7 +463,7 @@ int main()
 	
 //	renderFrame(frame);
 
-	if(frame == 1800)
+	if(glfwGetTime() > 20.0)
 	{
 	    FILE *fp = fopen("output.csv", "w");
 	    fprintf(fp, "v\n");
