@@ -4,9 +4,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-#define WIDTH 1920
-#define HEIGHT 1080
+#include "rendering.h"
 
 #define PI 3.1415926536
 
@@ -308,6 +306,7 @@ int main()
     glViewport(0, 0, WIDTH, HEIGHT);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
+
     /* initialize glew */
     GLenum err;
     if((err = glewInit()) != GLEW_OK)
@@ -325,6 +324,8 @@ int main()
     struct polygon hexagon = createPolygon(0.01f, 10);
     float apotheme = 0.01*cos(PI/10);
 
+    int frame = 0;
+    float delta = 1/60.0;
     while(!glfwWindowShouldClose(window))
     {
 	processInput(window);
@@ -332,8 +333,9 @@ int main()
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);	
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	double time = glfwGetTime();
-	double delta = time - lastFrameTime;
+//	double time = glfwGetTime();
+	double time = frame*delta;
+//	double delta = time - lastFrameTime;
 
 	lastFrameTime = time;
 
@@ -410,21 +412,7 @@ int main()
 
 	drawPlot(res, 200, plotShaderProgram);
 
-	if(time > 30.0)
-	{
-	    FILE *fp = fopen("output.csv", "w");
-	    fprintf(fp, "v\n");
-
-	    for(int i = 0; i < n_balls; i++)
-	    {
-		float v;
-		
-		v = sqrt(powf(velocity[i][0], 2) + powf(velocity[i][1], 2));
-		fprintf(fp, "%f\n", v);
-	    }
-	    
-	    fclose(fp);
-	}
+	
 
 	glUseProgram(shaderProgram);
 	for(int i = 0; i < n_balls; i++)
@@ -449,16 +437,8 @@ int main()
 	    glDrawElements(GL_TRIANGLES, 300, GL_UNSIGNED_INT, 0); 
 	}
 
-	glfwSwapBuffers(window);
-	glfwPollEvents();
-
-	while(glfwGetTime() < 2.0);
-
 	float distance;
-	/*	if(distance <= 2*apotheme)
-	{
-	    sphereCollision(position, velocity, 0, 1);
-	} */
+
 
 	for(int i = 0; i < n_balls - 1; i++)
 	{
@@ -473,6 +453,34 @@ int main()
 		    sphereCollision(position, velocity, i, j);
 	    }
 	}
+
+
+
+	glfwSwapBuffers(window);
+	glfwPollEvents();
+
+//	while(glfwGetTime() < 2.0);
+	
+//	renderFrame(frame);
+
+	if(frame == 1800)
+	{
+	    FILE *fp = fopen("output.csv", "w");
+	    fprintf(fp, "v\n");
+
+	    for(int i = 0; i < n_balls; i++)
+	    {
+		float v;
+		
+		v = sqrt(powf(velocity[i][0], 2) + powf(velocity[i][1], 2));
+		fprintf(fp, "%f\n", v);
+	    }
+	    
+	    fclose(fp);
+	    exit(1);
+	}
+
+	frame++;
     }
     glDeleteShader(shaderProgram);
     glDeleteShader(plotShaderProgram);
